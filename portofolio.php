@@ -129,13 +129,36 @@ function belajar_shortcode() {
         'per_page' => '20'
     ];
     $portofolio_list = new WP_Query($args);
-    $html = '<ul>';
+    $html = '<div>';
     while ( $portofolio_list->have_posts() ) {
         $portofolio_list->the_post();
-        $html .= '<li>' . get_the_title() . ' : ' . $portofolio_list->post->post_content.'</li>';
-        $html .= get_the_post_thumbnail($portofolio_list->ID); 
+        $post_type = get_post_type(get_the_ID());   
+        $taxonomies = get_object_taxonomies($post_type);   
+        $taxonomy_names = wp_get_object_terms(get_the_ID(), $taxonomies,  array("fields" => "names"));
+
+        $teknologis = '';
+
+        foreach($taxonomy_names as $teknologi) {
+            $teknologis .= '<button class="tag">'.$teknologi.'</button>';
+        }
+
+        $posisi = get_post_meta( get_the_ID(), 'my_portofolio_posisi', true );
+        $url = get_post_meta( get_the_ID(), 'my_portofolio_url', true );
+        $tanggal_awal = get_post_meta( get_the_ID(), 'my_portofolio_tanggal_akhir', true );
+        $tanggal_akhir = get_post_meta( get_the_ID(), 'my_portofolio_tanggal_mulai', true );
+
+        $html .= '<div class="card mb-2" >
+        <img src='.get_the_post_thumbnail_url($portofolio_list->ID).' alt="Avatar" style="width:100%">
+        <div class="container">
+          <p><b>'.get_the_title().'</b> / <small>'.$posisi.'</small></p>
+          <p><a href='.$url.'>'.$url.'</a></p>
+          <p>'.$teknologis.'</p>
+          <p>'.$tanggal_awal. ' s/d '.$tanggal_akhir.'</p>
+          <p>'.$portofolio_list->post->post_content.'</p>
+        </div>
+      </div>';
     }
-    $html .= '</ul>';
+    $html .= '</div>';
     return $html;
 }
 
@@ -173,6 +196,23 @@ function belajar_table_content( $column_name, $post_id ) {
         echo $value;
     }
 }
+
+$pluginDir = plugins_url('/assets/css/css.css');
+
+function load_css()
+{
+    wp_enqueue_style( 'portofolio-css', plugin_dir_url(__FILE__) . 'assets/css.css' , false, '1.0.0' );
+}
+
+function load_js()
+{
+    wp_enqueue_script( 'portofolio-js', plugin_dir_url(__FILE__) . 'assets/js.js', false, '1.0.0' );
+
+}
+
+add_action( 'wp_enqueue_scripts', 'load_css' );
+add_action( 'wp_enqueue_scripts', 'load_js' );
+
 
 register_activation_hook(__FILE__, 'belajar_jalan_saat_aktifasi');
 register_deactivation_hook(__FILE__, 'belajar_jalan_saat_dimatikan');
