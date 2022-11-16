@@ -213,6 +213,22 @@ function load_js()
 add_action( 'wp_enqueue_scripts', 'load_css' );
 add_action( 'wp_enqueue_scripts', 'load_js' );
 
+add_action( 'admin_enqueue_scripts', 'load_css' );
+add_action( 'admin_enqueue_scripts', 'load_js' );
+
+
+add_filter('bulk_actions-edit-portofolio', function($bulk_actions) {
+	$bulk_actions['sebuah-action'] = __('Sebuah Action', 'txtdomain');
+	return $bulk_actions;
+});
+
+add_filter('handle_bulk_actions-edit-portofolio', function($redirect_url, $action, $post_ids) {
+	if ($action == 'sebuah-action') {
+		wp_die("aksi berjalan");
+		$redirect_url = add_query_arg('sebuah-action', count($post_ids), $redirect_url);
+	}
+	return $redirect_url;
+}, 10, 3);
 
 register_activation_hook(__FILE__, 'belajar_jalan_saat_aktifasi');
 register_deactivation_hook(__FILE__, 'belajar_jalan_saat_dimatikan');
